@@ -9,16 +9,17 @@ var grupoDeObstaculos, grupoNuvens;
 var gameOverImagem, gameOver;
 var restart, restartImagem;
 var somPulo, somMorte, somPlacar;
+var larguraTela = window.innerWidth
 
 function nuvens() {
   if (frameCount % 60 === 0){
-    var nuvem = createSprite (600, 50, 40, 10);
+    var nuvem = createSprite (larguraTela, 50, 40, 10);
     nuvem.y = Math.round (random (1,50))
     nuvem.velocityX = -5;
     nuvem.addImage (imagemNuvem);
     nuvem.depth = trex.depth
     trex.depth = trex.depth + 1
-    nuvem.lifetime = 128;
+    nuvem.lifetime = larguraTela;
     grupoNuvens.add (nuvem)
   }
 }
@@ -35,9 +36,9 @@ function restart2 (){
 
 function obstaculos(){
   if (frameCount % 50 === 0){
-    var obstaculo = createSprite (600, 180, 10, 40);
+    var obstaculo = createSprite (larguraTela, 180, 10, 40);
     obstaculo.velocityX = -(6+pontuacao/100);
-    obstaculo.lifetime = 128;
+    obstaculo.lifetime = larguraTela;
     obstaculo.scale = 0.95
     
     var tipo = Math.round (random(1, 6)) 
@@ -65,8 +66,8 @@ function preload() {
   trexCorrendo = loadAnimation('trex1.png', 'trex3.png', 'trex4.png');
   trexCollided = loadAnimation ('trex_collided.png');
   
-  imagemChao = loadAnimation ('ground2.png');  
-  
+  imagemChao = loadAnimation ('ground2.png', 'ground2.png');  
+
   imagemNuvem = loadImage ('cloud.png');
   
   obstaculo1 = loadImage ('obstacle1.png');
@@ -85,7 +86,7 @@ function preload() {
 }
 
 function setup(){
-  createCanvas(600,200);
+  createCanvas(larguraTela,200);
   
   trex = createSprite(50, 150, 20, 40);
   trex.addAnimation('correndo', trexCorrendo);
@@ -102,11 +103,11 @@ function setup(){
   grupoDeObstaculos = new Group ()
   grupoNuvens = new Group ()
   
-  gameOver = createSprite(300, 50, 40, 20);
+  gameOver = createSprite(larguraTela/2, 50, 40, 20);
   gameOver.addImage (gameOverImage);
   gameOver.visible = false;
   
-  restart = createSprite(300, 100, 40, 20);
+  restart = createSprite(larguraTela/2, 100, 40, 20);
   restart.addImage (restartImage);
   restart.scale = 0.7
   restart.visible = false;
@@ -115,7 +116,7 @@ function setup(){
 function draw(){
   background('white');
 
-  text ('Sua Pontuação = ' + pontuacao, 450, 40)
+  text ('Sua Pontuação = ' + pontuacao, larguraTela-150, 40)
    
  trex.velocityY = trex.velocityY + 0.5;
   
@@ -124,13 +125,14 @@ function draw(){
   if (estadoJogo === "estadoInicial"){
       pontuacao = pontuacao + Math.round (frameRate() / 60)
     
-         if ((keyDown('space') || keyDown('up')) && trex.y > 100) {
+         if ((keyDown('space') || keyDown('up') || touches.length > 0 ) && trex.y > 100) {
     trex.velocityY = -10;
     somPulo.play ()
+    touches = []
   }
       chao.velocityX = -(5+pontuacao);
     
-      if (chao.x < 0 ){
+      if (chao.x < larguraTela/2 ){
     chao.x = chao.width/2
   }
     
@@ -156,8 +158,9 @@ function draw(){
         gameOver.visible = true;
         restart.visible = true;
         
-        if (mousePressedOver (restart)){
+        if (mousePressedOver (restart) || touches.length > 0 ){
            restart2 ()
+           touches = [];
             }
   }
   
